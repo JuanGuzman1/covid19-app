@@ -1,52 +1,61 @@
 import React, { useState, useEffect} from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View,Text } from 'react-native';
 import Header from './components/Header';
 import GlobalCases from './screens/GlobalCases';
 import SpecificCases from './screens/SpecificCases';
 
 export default function App() {
   
-  const [state,setState] = useState({data: []});
-  const [country,setCountry] = useState({data: []});
+  const [state,setState] = useState([]);
+  const [stateCountry,setStateCountry] = useState([]);
+  const [country,setCountry] = useState("");
  
-  const stateData = (dataApi) => {
-    setState({ data: dataApi });
+  const stateDataGlobal = (dataApi) => {
+    setState(dataApi);
   };
+
+  const stateDataCountries = (dataApi) => {
+    setStateCountry(dataApi);
+  };
+
+  
+  const startCountry = (selectedCountry) => {
+    setCountry(selectedCountry);
+  };
+
+  const changeView = (blankCountry)=>{
+    setCountry(blankCountry)
+  }
 
   const getData = async () => {
     let response = await fetch("https://api.covid19api.com/summary");
-    let data = await response.json();
-    stateData(data);
+    let datos = await response.json();
+    let dataGlobal = datos.Global;
+    let dataCountries = datos.Countries;
+    stateDataGlobal(dataGlobal);
+    stateDataCountries(dataCountries);
+    console.log("oso");
   };
 
   useEffect(() => {
     getData();
-    console.log("oso");
   },[]);
 
-  const startCountry = (selectedCountry) => {
-    setCountry({data: selectedCountry});
-  };
 
-  const changeView = (blankCountry)=>{
-    setCountry({data: blankCountry})
-  }
+  const dataGlobal = state;
+  const dataCountries = stateCountry;
 
-  const { data } = state;
-  const Countries = data.Countries;
-  console.log(country);
-
-  let content = <GlobalCases covid={data} onViewCountry={startCountry}/>;
-
-  if(country.data !=""){
-    Countries.map((item, key) => {
-        if (item.Country.indexOf(country.data) === -1) {
+  let content = null;
+ 
+  if(country !="" ){
+    dataCountries.map((item, key) => {
+        if (item.Country.indexOf(country) === -1) {
             return;
         }
         content = <SpecificCases key={key} Countries={item} onChangeView={changeView} />
     })
   }else{
-    content = <GlobalCases covid={data} onViewCountry={startCountry}/>;
+    content = <GlobalCases global={dataGlobal} countries={dataCountries} onViewCountry={startCountry}/>;
   }
 
   return (
