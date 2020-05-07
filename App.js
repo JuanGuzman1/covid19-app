@@ -59,10 +59,12 @@ export default function App() {
   }
 
   return (
+ 
     <View style={styles.container}>
     <Header title="COVID-19" />
     {content}
     </View>
+    
   );
 };
 
